@@ -1,0 +1,144 @@
+﻿@model SelfServiceSupportPortal.Data.Model.ViewModels.ProductDetailsVM
+
+
+<style>
+    .select-wrapper {
+        max-width: 100%;
+        overflow: hidden; /* To prevent overflow */
+    }
+
+    .select2-container {
+        box-sizing: border-box;
+        display: inline-block;
+        margin: 0;
+        position: relative;
+        vertical-align: middle;
+        width: 100% !important;
+    }
+
+    .select2-selection__choice{
+        white-space:normal;
+        word-break:break-word;
+    }
+
+    .centered-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* 100% of the viewport height */
+    }
+
+
+</style>
+
+
+<div class="container" id="userSelectArea">
+    <div class="centered-buttons">
+        <a class="btn btn-primary btn-lg mx-2 px-4 py-3" onclick="UserClicked()">User</a>or
+        <a class="btn btn-secondary btn-lg mx-2 px-4 py-3" asp-action="Index" asp-controller="Complain">Technician</a>
+    </div>
+</div>
+<div class="card" style="display:none;" id="detailForm">
+    <div class="card-header">
+        <h3>Product Details</h3>
+    </div>
+    <div class="card-body position-relative">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header bg-light-primary">
+                   @*  <.nameh5>@Model.name<h5> *@
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0 pt-0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1 text-muted">Tag</p>
+                                    <h6 class="mb-0">@Model.Tag</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1 text-muted">Branch Module no</p>
+                                    <h6 class="mb-0">@Model.BrandModuleNo</h6>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item px-0 pt-0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1 text-muted">Mc Serial no.</p>
+                                    <h6 class="mb-0">@Model.McSerialNo</h6>
+                                  
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1 text-muted">Location</p>
+                                    <h6 class="mb-0">@Model.Location</h6>
+                                </div>
+
+                            </div>
+                        </li>
+
+                        <li class="list-group-item px-0 pt-0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1 text-muted">Department</p>
+                                    <h6 class="mb-0">@Model.Department</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1 text-muted">Created Date</p>
+                                    <h6 class="mb-0">@Model.CreatedDate</h6>
+                                </div>
+
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header bg-light-primary">
+                    <h5>Complain Form</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Product" asp-action="RegisterComplains" method="post">
+                       
+                        <input asp-for="ProductId" hidden />
+
+                        <div class="form-group">
+                            <label>Complaints:</label>
+                            <div class="">
+                                @Html.ListBoxFor(model => model.ComplainIds, new SelectList(ViewBag.ProductComplaints, "ID", "Name"), new { @class = "form-control select2" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Phonenumber">Phoen number:</label>
+                            <input  asp-for="Phonenumber" class="form-control" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="ComplainDescription">Remark:</label>
+                            <textarea asp-for="ComplainDescription" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group p-1">
+                        <button type="submit" class="btn btn-primary p-1">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+    $('.select2').select2();
+    });
+
+    function UserClicked() {
+        document.getElementById('detailForm').style.display = 'block';
+        document.getElementById('userSelectArea').style.display = 'none';
+    }
+</script>

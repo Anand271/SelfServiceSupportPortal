@@ -1,0 +1,111 @@
+﻿@model SelfServiceSupportPortal.Data.Model.ViewModels.ProductVM
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header bg-secondary">
+            <div class="row d-flex w-100 justify-content-between">
+                <div class="col-1">
+                    <a class="fa-solid fa-xmark btn btn-lg btn-light" data-bs-dismiss="modal" title="Close Popup"></a>  
+                </div>
+            </div>
+        </div>
+        <div class="modal-body" id="rejectQuotedModalModalBody">
+
+            <div id="form" >
+                <form id="registerForm" asp-controller="Product" asp-action="Save">
+                    <input asp-for="ID" hidden/>
+                    <input asp-for="CreatedDate" hidden/>
+                    <input asp-for="UpdatedDate" hidden/>
+                    <input asp-for="StartedDate" hidden/>
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Tag" class="form-control" autocomplete="on" aria-required="true" placeholder="Tag" readonly="@Model.IsReadOnlyPage" />
+                        <label asp-for="Tag">Tag</label>
+                        <span asp-validation-for="Tag" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="McSerialNo" class="form-control" autocomplete="on" aria-required="true" placeholder="MC Serial no." readonly="@Model.IsReadOnlyPage" />
+                        <label asp-for="McSerialNo">MC Serial no.</label>
+                        <span asp-validation-for="McSerialNo" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="BrandModuleNo" class="form-control" autocomplete="on" aria-required="true" placeholder="Model" readonly="@Model.IsReadOnlyPage" />
+                        <label asp-for="BrandModuleNo">Model</label>
+                        <span asp-validation-for="BrandModuleNo" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Department" class="form-control" autocomplete="on" aria-required="true" placeholder="Department" readonly="@Model.IsReadOnlyPage" />
+                        <label asp-for="Department">Department</label>
+                        <span asp-validation-for="Department" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Location" class="form-control" autocomplete="on" aria-required="true" placeholder="Location" readonly="@Model.IsReadOnlyPage" />
+                        <label asp-for="Location">Location</label>
+                        <span asp-validation-for="Location" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Address" class="form-control" autocomplete="on" aria-required="true" placeholder="Address" readonly="@Model.IsReadOnlyPage" />
+                        <label asp-for="Address">Address</label>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    @if (!Model.IsReadOnlyPage)
+                    {
+                        <div class="form-floating mb-3">
+                            @Html.DropDownListFor(model => model.CompanyId, new SelectList(Model.CompanyList, "Id", "Name"), "Select Company", new { @class = "form-control" })
+                            <label asp-for="CompanyId">Company</label>
+                            <span asp-validation-for="CompanyId" class="text-danger"></span>
+                        </div>                        
+                    }
+
+                    @if(!Model.IsReadOnlyPage){
+                        <button id="registerSubmit" type="submit" class="w-100 btn btn-primary">Submit</button>
+                    }
+                    else
+                    {
+                        <a class="btn btn-danger" asp-controller="Product" asp-action="DeleteSave" asp-route-Id="@Model.ID">Delete</a>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Attach an onchange event handler to the dropdown
+    let comanyId = 0;
+    
+
+    function SaveForm(){
+        debugger;
+        const selectedFile = $('#csvFile')[0].files[0];
+
+        if (selectedFile) {
+            // Create a FormData object to send the file
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('comanyId', comanyId);
+
+            $.ajax({
+                url: '/Product/CreateWithCSV', // Replace with your controller and action method
+                type: 'POST',
+                data: formData,
+                processData: false,  // Prevent jQuery from processing the data
+                contentType: false,  // Prevent jQuery from setting content type
+                success: function (data) {
+                    // Handle the success response
+                    if(data){
+                        toastr["success"]("Inserted Successfully!");
+                        $('#viewComplainModel').modal('hide');
+                        ReloadTblData();
+                    }else{
+                        toastr["success"]("Faild to insert!");
+                    }
+                },
+                error: function (error) {
+                    // Handle the error
+                    toastr["success"]("Faild to insert!");
+                }
+            });
+        }
+    }
+</script>

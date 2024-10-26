@@ -1,0 +1,593 @@
+﻿@*@using (Html.BeginForm("ScanQRCode", "QRCode", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="form-group">
+        <label for="imageFile">Select an image file:</label>
+        <input type="file" name="file" id="imageFile" class="form-control-file" accept=".jpg, .png, .jpeg" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Decode QR Code</button>
+}*@
+@*<form asp-action="ScanQRCode" asp-controller="QRCode" method="post" enctype="multipart/form-data">
+    <input type="file" name="qrCodeImage" accept=".png, .jpg, .jpeg" />
+    <button type="submit">Decode QR Code</button>
+</form>*@
+
+@*
+<video id="video" autoplay></video>
+<button id="captureButton">Capture QR Code</button>
+<form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" accept="image" capture="environment" id="qrImage" name="qrCodeImage">
+</form>
+<!-- Inside your HTML form -->
+<img id="capturedImage" alt="Captured QR Code" style="display: none;">
+
+<button id="submitButton">Submit Image</button>
+<div id="result"></div>*@
+<style>
+    .hidden{
+        display:none;
+    }
+</style>
+<div id="cameraContainer" class="row">
+    <div class="col-md-6 imagediv d-flex justify-content-center">
+        <video id="cameraFeed" autoplay style="border: 1.5px solid black;width: 25rem;"></video>
+    </div>
+    <div class="col-md-6 imagediv d-flex justify-content-center">
+        <img id="capturedImage" style="border: 1.5px solid black;width: 25rem;display: none;" />
+    </div>
+</div>
+<button id="captureButton">Capture Image</button>
+<input type="text" class="form-control" hidden id="image" placeholder="image" value="">
+<button id="submitForm">Submit Form</button>
+
+
+<a id="qrCodeLink" href="#" class="hidden">QR Code Link</a>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.0.1/dist/jsQR.js"></script>
+
+<script>
+    //document.addEventListener("DOMContentLoaded", function () {
+    //    const video = document.getElementById("video");
+    //    const captureButton = document.getElementById("captureButton");
+    //    const qrImageInput = document.getElementById("qrImage");
+    //    const uploadForm = document.getElementById("uploadForm");
+    //    const submitButton = document.getElementById("submitButton");
+    //    const resultDiv = document.getElementById("result");
+
+    //    let stream;
+    //    let capturedImageBlob;
+
+    //    // Access the webcam and start video stream
+    //    navigator.mediaDevices.getUserMedia({ video: true })
+    //        .then(function (stream) {
+    //            video.srcObject = stream;
+    //            capturedImageBlob = null; // Reset captured image when accessing webcam
+    //        })
+    //        .catch(function (error) {
+    //            console.error("Error accessing the webcam: " + error);
+    //        });
+
+    //    // Capture an image from the webcam
+    //    captureButton.addEventListener("click", function () {
+    //        if (video.srcObject) {
+    //            const canvas = document.createElement('canvas');
+    //            canvas.width = video.videoWidth;
+    //            canvas.height = video.videoHeight;
+    //            const ctx = canvas.getContext('2d');
+    //            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    //            canvas.toBlob(function (blob) {
+    //                const dataTransfer = new DataTransfer();
+    //                dataTransfer.items.add(new File([blob], "captured_qr_code.png"));
+
+    //                // Set the 'files' property with the DataTransfer object
+    //                qrImageInput.files = dataTransfer.files;
+
+    //                capturedImageBlob = blob;
+
+    //                // Display the captured image
+    //                const capturedImageElement = document.getElementById("capturedImage");
+    //                capturedImageElement.src = URL.createObjectURL(blob);
+    //                capturedImageElement.style.display = "block";
+    //            }, 'image/png');
+    //        }
+    //    });
+
+
+    //    // Submit the captured image to the server
+    //    submitButton.addEventListener("click", function () {
+    //        if (capturedImageBlob) {
+    //            const formData = new FormData(uploadForm);
+    //            formData.append("qrCodeImage", capturedImageBlob);
+    //            fetch('/QRCode/ScanQRCode', {
+    //                method: 'POST',
+    //                body: formData,
+    //            })
+    //                .then(response => response.text())
+    //                .then(data => {
+    //                    resultDiv.innerHTML = data;
+    //                })
+    //                .catch(error => {
+    //                    console.error("Error submitting the image: " + error);
+    //                });
+    //        } else {
+    //            resultDiv.innerHTML = "No image captured.";
+    //        }
+    //    });
+    //});
+
+    // Function to capture an image from the camera and submit it
+
+
+
+
+
+    //function captureAndSubmitImage() {
+    //    // Access the user's camera
+    //    navigator.mediaDevices.getUserMedia({ video: true })
+    //        .then(function (stream) {
+    //            // Create a video element to display the camera feed
+    //            var video = document.getElementById('cameraFeed');
+    //            video.srcObject = stream;
+
+    //            // Function to capture and submit the image
+    //            function captureAndSubmit() {
+    //                var canvas = document.createElement('canvas');
+    //                canvas.width = video.videoWidth;
+    //                canvas.height = video.videoHeight;
+    //                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    //                // Display the captured image
+    //                var image = document.getElementById('capturedImage');
+    //                image.src = canvas.toDataURL('image/jpeg');
+    //                document.getElementById('image').value = image.src;
+    //                image.style.display = 'block';
+
+    //                // Stop the camera feed (you can choose to start the camera feed again for the next capture)
+    //              //  
+
+    //                // Submit the captured image
+    //                var success = decodeQRCode(image.src);
+    //                if(success!= true){
+    //                  //  setInterval(captureAndSubmit, 5000);
+    //                }
+    //                else{
+    //                    stream.getTracks().forEach(track => track.stop());
+    //                    submitForm(image.src);
+    //                }
+    //            }
+
+    //            // Capture an image and submit it every 5 seconds (adjust the interval as needed)
+    //            setInterval(captureAndSubmit, 5000);
+    //        })
+    //        .catch(function (err) {
+    //            console.error('Error accessing the camera: ', err);
+    //        });
+
+
+    //}
+
+ 
+    //function decodeQRCode(imageData) {
+    //    var canvas = document.createElement('canvas');
+    //    var context = canvas.getContext('2d');
+    //    var img = new Image();
+    //    var code;
+    //    img.src = imageData;
+    //    img.onload = function () {
+    //        canvas.width = img.width;
+    //        canvas.height = img.height;
+    //        context.drawImage(img, 0, 0);
+
+    //        // Decode the QR code from the loaded image
+    //       code = jsQR(context.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
+
+           
+    //    };
+    //    if (code) {
+    //        // A QR code was found, and its data is in code.data
+    //        console.log('QR code data: ' + code.data);
+    //        // Continue with the form submission or other actions
+    //        return true;
+    //    } else {
+    //        console.log('No QR code found in the image.');
+    //        // Display an error message or take appropriate action
+    //        return false;
+    //    }
+    //}
+
+    //document.getElementById('submitForm').addEventListener('click', function () {
+    //    var imageData = document.getElementById('image').value;
+    //    decodeQRCode(imageData);
+    //});
+
+    //function submitForm(imageData) {
+    //    //var imageData = document.getElementById('image').value;
+
+    //    // Continue with the form submission or any other actions you want to take
+    //    var data = {
+    //        qrCodeImage: imageData
+    //    }
+
+    //    $.ajax({
+    //        // url: baseUrl + '/SubmitService',
+    //        url: '@Url.Action("ScanQRCode", "QRCode")',
+    //        type: 'POST',
+    //        data: data,
+    //        success: function (r) {
+    //            if (r.text != undefined) {
+    //                //window.sessionStorage.setItem('token', r.responseObject);
+    //                var qrCodeLink = document.getElementById('qrCodeLink');
+    //                qrCodeLink.href = r.text; // Assuming r.text contains the URL you want
+    //                // Optionally, set the anchor tag's text to the URL
+    //                qrCodeLink.textContent = r.text;
+    //                $('#qrCodeLink').removeClass("hidden");
+    //                // Stop the camera feed
+
+    //                var video = document.getElementById('cameraFeed');
+    //                var tracks = video.srcObject.getTracks();
+    //                tracks.forEach(function (track) {
+    //                    track.stop();
+    //                });
+    //                // Hide the camera block
+    //                //var cameraContainer = document.getElementById('cameraContainer');
+    //                //cameraContainer.style.display = 'none';
+
+    //            } else {
+    //                captureAndSubmitImage();
+    //            }
+    //        }
+    //    });
+
+    //}
+
+    document.getElementById('captureButton').addEventListener('click', function () {
+        // Access the user's camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                // Create a video element to display the camera feed
+                var video = document.getElementById('cameraFeed');
+                video.srcObject = stream;
+
+                // When the user clicks to capture the image
+                document.getElementById('captureButton').addEventListener('click', function () {
+                    var canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    // Stop the camera feed
+                    stream.getTracks().forEach(track => track.stop());
+
+                    // Display the captured image
+                    var image = document.getElementById('capturedImage');
+                    image.src = canvas.toDataURL('image/jpeg');
+                    document.getElementById('image').value = image.src;
+                    image.style.display = 'block';
+                });
+            })
+            .catch(function (err) {
+                console.error('Error accessing the camera: ', err);
+            });
+    });
+
+   
+    function decodeQRCode(imageData) {
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        var img = new Image();
+
+        img.src = imageData;
+        img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            context.drawImage(img, 0, 0);
+
+            // Decode the QR code from the loaded image
+            var code = jsQR(context.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
+
+            if (code) {
+                // A QR code was found, and its data is in code.data
+                console.log('QR code data: ' + code.data);
+                // Continue with the form submission or other actions
+                submitForm(imageData);
+            } else {
+                console.log('No QR code found in the image.');
+                // Display an error message or take appropriate action
+            }
+        };
+    }
+
+    document.getElementById('submitForm').addEventListener('click', function () {
+        var imageData = document.getElementById('image').value;
+        decodeQRCode(imageData);
+    });
+
+    function submitForm(imageData) {
+        var imageData = document.getElementById('image').value;
+
+            // Continue with the form submission or any other actions you want to take
+            var data = {
+                qrCodeImage: imageData
+            }
+
+            $.ajax({
+                // url: baseUrl + '/SubmitService',
+                url: '@Url.Action("ScanQRCode", "QRCode")',
+                type: 'POST',
+                data: data,
+                success: function (r) {
+                    if (r.text != undefined) {
+                        //window.sessionStorage.setItem('token', r.responseObject);
+                        var qrCodeLink = document.getElementById('qrCodeLink');
+                        qrCodeLink.href = r.text; // Assuming r.text contains the URL you want
+                        // Optionally, set the anchor tag's text to the URL
+                        qrCodeLink.textContent = r.text;
+                        $('#qrCodeLink').removeClass("hidden");
+                    } else {
+                        toastr.error(r.message);
+                    }
+                }
+            });
+
+    }
+
+
+
+        //document.getElementById('submitForm').addEventListener('click', function () {
+        //    var imageData = document.getElementById('image').value;
+        //    var data = {
+        //        qrCodeImage: imageData
+        //    }
+        //    $.ajax({
+        //        // url: baseUrl + '/SubmitService',
+        //        url: '@Url.Action("ScanQRCode", "QRCode")',
+        //        type: 'POST',
+        //        data: data ,
+        //        success: function (r) {
+        //            if (r.text != undefined) {
+        //                //window.sessionStorage.setItem('token', r.responseObject);
+        //                var qrCodeLink = document.getElementById('qrCodeLink');
+        //                qrCodeLink.href = r.text; // Assuming r.text contains the URL you want
+        //                // Optionally, set the anchor tag's text to the URL
+        //                qrCodeLink.textContent = r.text;
+        //                $('#qrCodeLink').removeClass("hidden");
+        //            }
+        //            else {
+        //                toastr.error(r.message);
+        //            }
+        //        }
+        //    });
+        //});
+
+
+</script>
+@*<div id="camera" style="width: 100%; height: auto;"></div>
+
+<script src="~/lib/quagga.min.js"></script>
+<script src="https://cdn.rawgit.com/serratus/quaggaJS/0420d5e0/dist/quagga.min.js"></script>
+<script>
+    Quagga.init({
+        inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: document.querySelector("#camera"),
+        },
+        decoder: {
+            readers: ["qrcode"],
+        },
+    });
+
+    Quagga.onDetected((result) => {
+        let qrCodeData = result.codeResult.code;
+        // Process or display the QR code data
+    });
+
+    Quagga.start();
+</script>
+*@
+
+
+@*<html lang="en">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.rawgit.com/serratus/quaggaJS/0420d5e0/dist/quagga.min.js"></script>
+    <script src="~/node_modules/quagga/dist/quagga.min.js"></script>
+
+    <style>
+        /* In order to place the tracking correctly 
+        canvas.drawing, canvas.drawingBuffer {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Div to show the scanner -->
+    <div id="scanner-container"></div>
+    <input type="button" id="btn" value="Start/Stop the scanner" />
+
+    <!-- Include the image-diff library -->
+    <script src="~/lib/quagga.min.js"></script>
+
+    <script>
+        var _scannerIsRunning = false;
+
+        function startScanner() {
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#scanner-container'),
+                    constraints: {
+                        width: 480,
+                        height: 320,
+                        facingMode: "environment"
+                    },
+                },
+                decoder: {
+                    readers: [
+                        "code_128_reader",
+                        "ean_reader",
+                        "ean_8_reader",
+                        "code_39_reader",
+                        "code_39_vin_reader",
+                        "codabar_reader",
+                        "upc_reader",
+                        "upc_e_reader",
+                        "i2of5_reader"
+                    ],
+                    debug: {
+                        showCanvas: true,
+                        showPatches: true,
+                        showFoundPatches: true,
+                        showSkeleton: true,
+                        showLabels: true,
+
+                        showPatchLabels: true,
+                        showRemainingPatchLabels: true,
+                        boxFromPatches: {
+                            showTransformed: true,
+                            showTransformedBox: true,
+                            showBB: true
+                        }
+                    }
+                },
+
+            }, function (err) {
+                if (err) {
+                    console.log(err);
+                    return
+                }
+
+                console.log("Initialization finished. Ready to start");
+                Quagga.start();
+
+                // Set flag to is running
+                _scannerIsRunning = true;
+            });
+
+            Quagga.onProcessed(function (result) {
+                var drawingCtx = Quagga.canvas.ctx.overlay,
+                    drawingCanvas = Quagga.canvas.dom.overlay;
+
+                // Assuming that result processing involves frequent reads
+                drawingCanvas.willReadFrequently = true;
+
+                if (result) {
+                    if (result.boxes) {
+                        drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+                        result.boxes.filter(function (box) {
+                            return box !== result.box;
+                        }).forEach(function (box) {
+                            Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { color: "green", lineWidth: 2 });
+                        });
+                    }
+
+                    if (result.box) {
+                        Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, { color: "#00F", lineWidth: 2 });
+                    }
+
+                    if (result.codeResult && result.codeResult.code) {
+                        Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { color: 'red', lineWidth: 3 });
+                    }
+                }
+            });
+
+
+            Quagga.onDetected(function (result) {
+                console.log("Barcode detected and processed : [" + result.codeResult.code + "]", result);
+            });
+        }
+
+
+        // Start/stop scanner
+        document.getElementById("btn").addEventListener("click", function () {
+            if (_scannerIsRunning) {
+                Quagga.stop();
+            } else {
+                startScanner();
+            }
+        }, false);
+    </script>
+</body>
+
+</html>*@
+
+@*<div>
+    <video id="video" autoplay></video>
+    <button id="startScan">Start Scan</button>
+</div>
+<canvas id="canvas" style="display: none;"></canvas>
+<div id="qrResult">QR Code Result: <span id="outputData"></span></div>
+<!-- Include required JavaScript libraries -->
+<script src="https://cdn.rawgit.com/cozmo/jsQR/master/dist/jsQR.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script type="module">
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const qrResult = document.getElementById('qrResult');
+    const outputData = document.getElementById('outputData');
+
+    const startScan = document.getElementById('startScan');
+    let scanning = false;
+
+    startScan.addEventListener('click', () => {
+        if (!scanning) {
+            startScanning();
+            scanning = true;
+            startScan.innerText = 'Stop Scan';
+        } else {
+            stopScanning();
+            scanning = false;
+            startScan.innerText = 'Start Scan';
+        }
+    });
+
+    import { QRCode } from './https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js';
+
+
+    function startScanning() {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                video.srcObject = stream;
+            })
+            .catch(function (err) {
+                console.error('Error accessing the camera: ', err);
+            });
+
+        video.onloadedmetadata = function (e) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+
+            const scanFrame = () => {
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (code) {
+                    outputData.innerText = code.data;
+                    qrResult.style.display = 'block';
+                    stopScanning();
+                } else {
+                    requestAnimationFrame(scanFrame);
+                }
+            };
+
+            scanFrame();
+        };
+    }
+
+    function stopScanning() {
+        video.srcObject.getTracks().forEach(track => track.stop());
+        qrResult.style.display = 'none';
+        outputData.innerText = '';
+    }
+</script>*@
+
+

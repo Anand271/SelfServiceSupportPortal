@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/selfservicesupport/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsSelfServiceSupportPorta_5BF2154A6A",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/eventdbserver/databases/EventBacPac",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:SelfServiceSupportPortalDbContextConnection",
+      "dynamicId": null
+    }
+  }
+}

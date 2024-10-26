@@ -1,0 +1,185 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+    <div class="header" style="background-color:lightgray;"> 
+        <h2>Dashboard</h2>
+    </div>
+
+<div class="row d-flex justify-content-center mb-5">
+    <div class="col-sm-5 border p-2" style="height:70vh;">
+            <div class="d-flex justify-content-between">
+                <h3>Complains</h3>
+            <select class="form-select w-25" aria-label="Default select example" onchange="UpdateComplainChart(this.value)">
+                    <option selected value="1">Date</option>
+                    <option value="2">Week</option>
+                    <option value="3">Month</option>
+                    <option value="4">Year</option>
+                </select>
+            </div>
+            <canvas id="barChart" width="400" height="300"></canvas>
+        </div>
+    <div class="col-sm-5 border p-2" style="height:70vh;">
+            <div class="d-flex justify-content-between">
+                <h3>Top Complains</h3>
+            <select class="form-select w-25" aria-label="Default select example" onchange="UpdateTopComplain(this.value)">
+                        <option selected value="1">This Month</option>
+                        <option value="2">This Year</option>
+                        <option value="3">Last Year</option>
+                        <option value="4">All</option>
+                </select>
+            </div>
+            <canvas id="doughnutChart" width="300" height="300"></canvas>
+        </div>
+    </div>
+
+
+<div class="row d-flex justify-content-center mt-5">
+    <div class="col-sm-5 border p-2" style="height:70vh;">
+        <div class="d-flex justify-content-between">
+            <h3>Branch Model</h3>
+            <select class="form-select w-25" aria-label="Default select example" onchange="UpdateBranchModelChart(this.value)">
+                <option selected value="1">This Month</option>
+                <option value="2">This Year</option>
+                <option value="3">Last Year</option>
+                <option value="4">All</option>
+            </select>
+        </div>
+        <canvas id="BranchModuleNo" width="400" height="300"></canvas>
+    </div>
+    <div class="col-sm-5 border p-2" style="height:70vh;">
+        <div class="d-flex justify-content-between">
+            <h3>Complain resolved</h3>
+            <select class="form-select w-25" aria-label="Default select example">
+                <option selected value="1">This Month</option>
+                <option value="2">This Year</option>
+                <option value="3">Last Year</option>
+                <option value="4">All</option>
+            </select>
+        </div>
+        <canvas id="ComplainReSolved" width="400" height="300"></canvas>
+    </div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+    $(document).ready(function () {
+        UpdateComplainChart(1);
+        UpdateTopComplain(1);
+        UpdateBranchModelChart(1); 
+        UpdateResolvedChart(1);
+    });
+        
+    function UpdateComplainChart(type) {
+            $.ajax({
+                type: "GET",
+                url: "/Home/GetChartDetails?Type="+type,
+                data: "",
+                contextType: "application/json; charset=utf8",
+                dataType: "json",
+                success: function (data) {
+                    Loadchart(data, 'barChart', 'bar');
+                },
+                error: function (xhr, status, error) {
+                    console.error("Ajax request failed: " + error);
+                }
+            });
+
+        }
+
+
+    function UpdateTopComplain(type) {
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetTopComplains?Type=" + type,
+            data: "",
+            contextType: "application/json; charset=utf8",
+            dataType: "json",
+            success: function (data) {
+                Loadchart(data, 'doughnutChart', 'doughnut');
+            },
+            error: function (xhr, status, error) {
+                console.error("Ajax request failed: " + error);
+            }
+        });
+    }
+
+
+    function UpdateBranchModelChart(type) {
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetBranchModelOnComplain?Type=" + type,
+            data: "",
+            contextType: "application/json; charset=utf8",
+            dataType: "json",
+            success: function (data) {
+                Loadchart(data, 'BranchModuleNo', 'bar', 'y');
+               
+            },
+            error: function (xhr, status, error) {
+                console.error("Ajax request failed: " + error);
+            }
+        });
+    }
+
+
+    function UpdateResolvedChart(type){
+        var data = [
+            ['Jan', 'Fab', 'Mar', 'April', 'June', 'July', 'Aug'],
+            [65, 59, 80, 81, 56, 55, 40]
+        ];
+        Loadchart(data, 'ComplainReSolved', 'line');
+    }
+
+    function Loadchart(data, chartId, chartType, axis) {
+                var _data = data;
+                var _labels = _data[0];
+                var _chartData = _data[1];
+
+                // Assuming you have an existing chart with ID 'myChart'
+        var existingChart = Chart.getChart(chartId);
+                if (existingChart) {
+                    existingChart.destroy(); // Destroy the existing chart
+                }
+
+        let ctx = document.getElementById(chartId);
+
+    
+                //var colors = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'];
+
+        const colors = [
+            'rgba(255, 99, 132, 1)', // Red
+            'rgba(75, 192, 192, 1)', // Green
+            'rgba(255, 205, 86, 1)', // Yellow
+            'rgba(54, 162, 235, 1)', // Blue
+            'rgba(153, 102, 255, 1)', // Purple
+        ];
+
+                new Chart(ctx, {
+            type: chartType,
+                    data: {
+                        labels: _labels,
+                        datasets: [{
+                            backgroundColor: colors,
+                            label: '# of Complains',
+                            data: _chartData,
+                            borderWidth: 1,
+                            borderColor: 'rgb(75, 192, 192)',
+                        }]
+                    },
+                    options: {
+                indexAxis: (axis) ? axis : 'x',
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+
+</script>

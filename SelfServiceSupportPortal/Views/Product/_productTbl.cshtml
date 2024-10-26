@@ -1,0 +1,75 @@
+﻿@model List<SelfServiceSupportPortal.Data.Model.ViewModels.ProductVM>
+@{
+    int i = 0;
+}
+<table id="dataTable" class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>S no.</th>
+            <td>Tag</td>
+            <td>MC Serial no.</td>
+            <th>Branch Model </th>
+            <th>Company</th>
+            <th>Department</th>
+            <th>Start Date</th>
+            <th>Location </th>
+            <th>Address </th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var row in Model)
+        {
+            i++;
+            <tr>
+                <td>@i</td>
+                <td>@row.Tag</td>
+                <td>@row.McSerialNo</td>
+                <td>@row.BrandModuleNo</td>
+                <td>@row.CompanyName</td>
+                <td>@row.Department</td>
+                <td>@(row.StartedDate.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                <td>@row.Location</td>
+                <td>@row.Address</td>
+                <td>
+                    @if (@row.ID != 0)
+                    {
+                        <span>
+                            <a class="fa-solid fa-pen-to-square link-dark rounded green text-info" onclick="EditProduct(@row.ID)" title="View complain"></a>
+                        </span>
+                        <span>
+                            <a class="fa-solid fa-trash link-dark rounded green text-danger" onclick="DeleteProduct(@row.ID)" title="View complain"></a>
+                        </span>
+                    }
+
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+<div class="modal fade" id="editProductModel" role="dialog" data-url='@Url.Action("Edit","Product")'></div>
+<div class="modal fade" id="deleteProductModel" role="dialog" data-url='@Url.Action("Delete","Product")'></div>
+
+<script>
+    $(document).ready(function () {
+        $('#dataTable').DataTable();
+    });
+
+
+    function EditProduct(Id) {
+        var url = $('#editProductModel').data('url') + "?Id=" + Id;
+        $.get(url, function (data) {
+            $('#editProductModel').html(data);
+            $('#editProductModel').modal('show');
+        });
+    }
+
+    function DeleteProduct(Id) {
+        var url = $('#deleteProductModel').data('url') + "?Id=" + Id;
+        $.get(url, function (data) {
+            $('#deleteProductModel').html(data);
+            $('#deleteProductModel').modal('show');
+        });
+    }
+</script>

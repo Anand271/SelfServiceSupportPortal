@@ -1,0 +1,99 @@
+﻿@model List<SelfServiceSupportPortal.Data.Model.ViewModels.ComplainsVM>
+@{
+    int i = 0;
+}
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header bg-secondary">
+                @if (Model.Count > 0)
+                {
+                    <div class="text-light" > RegisterdDate :  @Model.FirstOrDefault()?.RegisterdDate.ToString("dd-MM-yyyy")</div>
+                }
+           <div class="row d-flex w-50 justify-content-start">
+               <div class="col-8">
+                    <select asp-for="FirstOrDefault().Status" id="StatusDropDown" class="form-select w-100" aria-label="Default select example" onchange="FormChanged()">
+                        <option value="Open">Open</option>
+                        <option value="Close">Close</option>
+                    </select>
+               </div>
+               <div class="col-4 px-0">
+                    <a class="fa-solid fa-xmark btn btn-lg btn-light" data-bs-dismiss="modal" title="Close Popup"></a>
+               </div>
+           </div>
+           
+        </div>
+        <div class="modal-body" id="rejectQuotedModalModalBody">
+            <div>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>S no.</th>
+                            <th>Complains</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model)
+                        {
+                            i++;
+                            <tr>
+                                <td>@i</td>
+                                <td>@row.Name</td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer px-2 py-2">
+            <div class="row d-flex justify-content-between w-100">
+                @if (Model.Count > 0)
+                {
+                <div class="col-10">
+                        <input asp-for="FirstOrDefault().Comment" id="comment" class="form-control" placeholder="Comment" oninput="FormChanged()" />
+                </div>
+                <div class="col-2">
+                     <button type="button" id="SaveButton" class="btn btn-primary" disabled onclick="SaveChanges()">Save</button>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    //When changing anything than maing save button enable
+    function FormChanged() {
+        var saveBtn = document.getElementById('SaveButton');
+        saveBtn.disabled = false;
+    }
+
+    function SaveChanges() {
+        let Id = '@Model.FirstOrDefault()?.RegisterComplainId';
+        let status = document.getElementById('StatusDropDown').value;
+        let comment = document.getElementById('comment').value;
+
+
+        $.ajax({
+            type: "PUT",
+            url: "/Complain/UpdateStatus?Id=" + Id + "&status=" + status + "&comment="+ comment,
+            data: "",
+            contextType: "application/json; charset=utf8",
+            dataType: "json",
+            success: function (data) {
+                //hide model
+                $('#viewComplainModel').modal('hide');
+                //show toast notificaiton
+                toastr["success"]("Status updated!");
+                //Taking the value from top main Status Select list and refreshing the tabel as current status
+                debugger;
+                var currentStatus = document.getElementById('mainStatusDD').value;
+                UpdateTblData(currentStatus);
+            },
+            error: function (xhr, status, error) {
+                console.error("Ajax request failed: " + error);
+            }
+        });
+
+    }
+</script>

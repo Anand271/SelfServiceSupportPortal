@@ -1,0 +1,65 @@
+﻿@model List<SelfServiceSupportPortal.Data.Model.ViewModels.RegisterComplainVM>
+@{
+    int i = 0;
+}
+<table id="dataTable" class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>S no.</th>
+            <th>Registered Date</th>
+            <th>Remark</th>
+            @* <th>Status</th> *@
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var row in Model)
+        {
+            i++;
+            <tr>
+                <td>@i</td>
+                <td>@(row.RegisterdDate.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                <td>@row.Remark</td>
+@*                 <td>
+                    <select asp-for="@row.Status" class="form-select w-100" aria-label="Default select example" onchange="UpdateStatus(@row.ID,this.value)">
+                        <option value="Open">Open</option>
+                        <option value="Close">Close</option>
+                    </select>
+                </td> *@
+                    <td>
+                    @if (@row.ID != 0)
+                    {
+                    <span>
+                            
+                            <a class="fa-solid fa-eye link-dark rounded green text-info" onclick="ViewComplain(@row.ID)" title="View complain"></a>
+                    </span>
+                    }
+
+            </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+<div class="modal fade" id="viewComplainModel" role="dialog" data-url='@Url.Action("ViewComplain","Complain")'></div>
+
+<script>
+
+    $(document).ready(function () {
+        $('#dataTable').DataTable();
+    });
+
+
+
+    function ViewComplain(Id){
+        var url = $('#viewComplainModel').data('url') + '?Id=' + Id;
+        $.get(url, function (data) {
+            $('#viewComplainModel').html(data);
+            $('#viewComplainModel').modal('show');
+        });
+    }
+
+
+
+</script>

@@ -1,0 +1,56 @@
+﻿@model List<SelfServiceSupportPortal.Data.Model.ViewModels.RegisterComplainVM>
+
+
+<div class="wrapper">
+
+    <div class="content-wrapper">
+
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="row d-flex justify-content-center ">
+                    <div class="col-md-12">
+                        <br />
+                        <div class="card card-primary">
+                            <div class="card-header d-flex flex-wrap align-items-center">
+                                <h2 class="card-title nav me-auto">Complains</h2>
+                                <div>
+                                    <select class="form-select w-100" id="mainStatusDD" aria-label="Default select example" onchange="UpdateTblData(this.value)">
+                                        <option value="Open">Open</option>
+                                        <option value="Close">Close</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <div id="complainDataTable">
+
+                                <partial name="_complainTable" model="Model" />
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+
+<script>
+    function UpdateTblData(status) {
+        $.ajax({
+            type: "GET",
+            url: "/Complain/UpdateTbl?status=" + status,
+            success: function (data) {
+                // Bind the received HTML to the container element
+                $('#complainDataTable').html(data);
+                
+            },
+            error: function (xhr, status, error) {
+                console.error("Ajax request failed: " + error);
+            }
+        });
+    }
+</script>
